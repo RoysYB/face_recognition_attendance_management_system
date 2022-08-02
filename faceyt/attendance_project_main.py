@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import face_recognition
 import os
+from datetime import datetime
 
 #2convert images into RGB
 #find image folder and the image no. and their encodings
@@ -32,6 +33,18 @@ def findencodings(imgs):
         encode=face_recognition.face_encodings(img)[0]#getting the encoding of the image
         encodelist.append(encode)
     return encodelist
+def markattendance(name):
+    with open('Attendance.csv','r+')as f:
+        mydatalist=f.readline()
+        namelist=[]
+        for line in mydatalist:#to check if the attendance is already noted
+            entry=line.split(',')
+            namelist.append(entry[0])
+        if name not in namelist:
+            now=datetime.now()
+            datestring=now.strftime('%H:%M:%S')
+            f.writelines(f'\n{name},{datestring}')
+
 
 encodedlist=findencodings(imageslist)
 print("encoding completed")
@@ -65,7 +78,7 @@ while True:
             cv2.rectangle(img,(x1,y1),(x2,y2),(0,255,0),2)#coordinates,color,thickness
             cv2.rectangle(img, (x1, y2-35), (x2, y2),(0,255,0), cv2.FILLED)
             cv2.putText(img,name,(x1+6,y2-6),cv2.FONT_HERSHEY_COMPLEX,1,(255,255,255),2)
-
+            markattendance(name)
 
         #to display the image
         cv2.imgshow('webcam',img)
